@@ -9,3 +9,5 @@ torch
 tqdm
 kaggle
 wandb
+momentfm
+xlstm

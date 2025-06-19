@@ -1,7 +1,7 @@
 import json
 
 def load_model(model_name):
-    if model_name=="xlstm":
+    if model_name=="timexlstm":
         from models.timexlstm import xLSTMLit as model
     elif model_name=="itransformer":
         from models.itransformer import iTransformerLit as model
@@ -29,13 +29,10 @@ def load_results(filename="mse.json"):
 def save_results(filename, dataset, context_horizon, target_horizon, model, score):
     results = load_results(filename)
     
-    if dataset not in results:
-        results[dataset]={}
-    if context_horizon not in results[dataset]:
-        results[dataset][context_horizon] = {}
-    if target_horizon not in results[dataset][context_horizon]:
-        results[dataset][context_horizon][target_horizon] = {}
-    results[dataset][context_horizon][target_horizon][model] = score
+    results.setdefault(dataset, {})
+    results[dataset].setdefault(str(context_horizon), {})
+    results[dataset][str(context_horizon)].setdefault(str(target_horizon), {})
+    results[dataset][str(context_horizon)][str(target_horizon)][model] = score
 
     with open(filename, "w") as f:
-        json.dump(results, f)
+        json.dump(results, f, indent=2)
