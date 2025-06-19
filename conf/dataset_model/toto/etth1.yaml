@@ -1,0 +1,6 @@
+bs: 1
+ws: 4096
+epochs: 0
+patience: 0
+
+no_train: True

@@ -1,0 +1,4 @@
+name: etth2
+path: data/ETTh2.csv
+in_dim: 7
+

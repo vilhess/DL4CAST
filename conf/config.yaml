@@ -1,0 +1,15 @@
+defaults:
+  - dataset: etth1
+  - model: patchtst
+  - dataset_model: ${model}/${dataset}
+  - settings: settings
+
+  - _self_  
+  - override hydra/hydra_logging: disabled  
+  - override hydra/job_logging: disabled  
+
+  
+hydra:  
+  output_subdir: null  
+  run:  
+    dir: .

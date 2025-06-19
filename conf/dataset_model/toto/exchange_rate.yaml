@@ -1,0 +1,4 @@
+bs: 1
+ws: 4096
+
+no_train: True

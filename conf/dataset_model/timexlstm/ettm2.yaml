@@ -1,0 +1,6 @@
+bs: 256
+ws: 96
+lr: 1e-4
+epochs: 50
+patience: 10
+revin: True

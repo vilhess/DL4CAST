@@ -1,0 +1,8 @@
+bs: 32
+ws: 512
+lr: 1e-4
+epochs: 10
+patience: 2
+
+freeze_encoder: true
+size: small

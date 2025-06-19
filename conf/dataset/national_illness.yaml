@@ -1,0 +1,4 @@
+name: national_illness
+path: data/national_illness.csv
+in_dim: 7
+

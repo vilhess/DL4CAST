@@ -1,0 +1,4 @@
+name: samformer
+use_time_features: False
+
+training: True

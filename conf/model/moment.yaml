@@ -1,0 +1,6 @@
+name: moment
+use_time_features: False
+
+training: True
+amp_true: True
+max_norm: 5.0

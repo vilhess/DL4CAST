@@ -1,0 +1,4 @@
+name: patchtst
+use_time_features: False
+
+training: True

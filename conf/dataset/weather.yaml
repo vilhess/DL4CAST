@@ -1,0 +1,4 @@
+name: weather
+path: data/weather.csv
+in_dim: 21
+

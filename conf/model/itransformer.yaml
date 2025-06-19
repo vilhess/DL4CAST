@@ -1,0 +1,4 @@
+name: itransformer
+use_time_features: False
+
+training: True

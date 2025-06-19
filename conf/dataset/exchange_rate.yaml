@@ -1,0 +1,3 @@
+name: exchange_rate
+path: data/exchange_rate.csv
+in_dim: 8

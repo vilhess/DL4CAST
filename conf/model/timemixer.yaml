@@ -1,0 +1,4 @@
+name: timemixer
+use_time_features: True
+
+training: True
