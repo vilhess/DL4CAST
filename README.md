@@ -55,7 +55,7 @@ python preprocess.py
 To train a given model on a specified dataset, with a specific horizon, use the following command:
 
 ```python 
-python main.py dataset=<dataset_name> model=<model_name> dataset.target_length=<horizon> 
+python main.py dataset=<dataset_name> model=<model_name> dataset.target_length=<horizon> dataset
 ```
 ``` 
 
@@ -75,6 +75,8 @@ where `<dataset_name>` and `<model_name>` can be one of the following:
 | `patchtst`   |                        | 
 
 and `<horizon>` is an integer representing the forecasting horizon (e.g., 24, 48, 96, 192, 336, 720, ...).
+You can also specify to run on univariate case by adding `dataset.univariate=True` to the command.
+
 ---
 
 ### Testing 
