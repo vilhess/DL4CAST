@@ -43,7 +43,9 @@ def main(cfg: DictConfig):
     config_model_params["in_dim"] = config_dataset.in_dim
     config_model_params["target_len"] = settings.target_len
 
-    trainloader, valloader, testloader = get_dataloaders(config_dataset, config_model_params, settings, num_workers=21, persistent_workers=True, pin_memory=True)
+    trainloader, valloader, testloader = get_dataloaders(config_dataset=config_dataset, config_model=config_model, 
+                                                         config_model_params=config_model_params, settings=settings, 
+                                                         num_workers=21, persistent_workers=True, pin_memory=True)
 
     model = load_model(model_name)
 
