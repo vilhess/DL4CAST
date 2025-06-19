@@ -10,7 +10,7 @@ from pytorch_lightning.loggers import WandbLogger
 from datetime import datetime
 
 
-from dataset import TSDataset
+from dataset import get_dataloaders
 from utils import save_results, load_model
 
 @hydra.main(version_base=None, config_path=f"conf", config_name="config")
@@ -43,39 +43,9 @@ def main(cfg: DictConfig):
     config_model_params["in_dim"] = config_dataset.in_dim
     config_model_params["target_len"] = settings.target_len
 
+    trainloader, valloader, testloader = get_dataloaders(config_dataset, config_model_params, settings, num_workers=21, persistent_workers=True, pin_memory=True)
+
     model = load_model(model_name)
-
-    trainset = TSDataset(
-        path=config_dataset.path,
-        seq_len=config_model_params.ws,
-        target_len=settings.target_len,
-        mode="train",
-        univariate=settings.univariate,
-        target="OT",
-        use_time_features=config_model.use_time_features
-    )
-    valset = TSDataset(
-        path=config_dataset.path,
-        seq_len=config_model_params.ws,
-        target_len=settings.target_len,
-        mode="val",
-        univariate=settings.univariate,
-        target="OT",
-        use_time_features=config_model.use_time_features
-    )
-    testset = TSDataset(
-        path=config_dataset.path,
-        seq_len=config_model_params.ws,
-        target_len=settings.target_len,
-        mode="test",   
-        univariate=settings.univariate,
-        target="OT",
-        use_time_features=config_model.use_time_features
-    )
-
-    trainloader = DataLoader(trainset, batch_size=config_model_params.bs, shuffle=True, num_workers=21, persistent_workers=True)
-    valloader = DataLoader(valset, batch_size=config_model_params.bs, shuffle=False, num_workers=21, persistent_workers=True)
-    testloader = DataLoader(testset, batch_size=config_model_params.bs, shuffle=False, num_workers=21, persistent_workers=True)
 
     config_model_params["len_loader"] = len(trainloader)
 

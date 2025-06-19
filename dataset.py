@@ -3,6 +3,7 @@ import torch
 from torch.utils.data import Dataset
 import numpy as np
 from sklearn.preprocessing import StandardScaler
+from torch.utils.data import DataLoader
 
 class TSDataset(Dataset):
     def __init__(self, path, seq_len=100, target_len=100, mode="train", univariate=False, target='OT', use_time_features=False):
@@ -87,3 +88,39 @@ class DayOfYear(TimeFeature):
 
 def time_features(dates):
     return np.vstack([feat(dates) for feat in [HourOfDay(), DayOfWeek(), DayOfMonth(), DayOfYear()]]).T
+
+def get_dataloaders(config_dataset, config_model, config_model_params, settings, num_workers=21, pin_memory=True, persistent_workers=True):
+
+    trainset = TSDataset(
+        path=config_dataset.path,
+        seq_len=config_model_params.ws,
+        target_len=settings.target_len,
+        mode="train",
+        univariate=settings.univariate,
+        target="OT",
+        use_time_features=config_model.use_time_features
+    )
+    valset = TSDataset(
+        path=config_dataset.path,
+        seq_len=config_model_params.ws,
+        target_len=settings.target_len,
+        mode="val",
+        univariate=settings.univariate,
+        target="OT",
+        use_time_features=config_model.use_time_features
+    )
+    testset = TSDataset(
+        path=config_dataset.path,
+        seq_len=config_model_params.ws,
+        target_len=settings.target_len,
+        mode="test",   
+        univariate=settings.univariate,
+        target="OT",
+        use_time_features=config_model.use_time_features
+    )
+
+    trainloader = DataLoader(trainset, batch_size=config_model_params.bs, shuffle=True, num_workers=num_workers, persistent_workers=persistent_workers, pin_memory=pin_memory)
+    valloader = DataLoader(valset, batch_size=config_model_params.bs, shuffle=False, num_workers=num_workers, persistent_workers=persistent_workers, pin_memory=pin_memory)
+    testloader = DataLoader(testset, batch_size=config_model_params.bs, shuffle=False, num_workers=num_workers, persistent_workers=persistent_workers, pin_memory=pin_memory)
+
+    return trainloader, valloader, testloader
