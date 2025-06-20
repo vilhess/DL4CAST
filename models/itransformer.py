@@ -92,30 +92,31 @@ class Encoder(nn.Module):
         return x
     
 class iTransformer(nn.Module):
-    def __init__(self, seq_len, target_len):
+    def __init__(self, config):
         super().__init__()
 
         self.use_norm=True
-        self.seq_len=seq_len
-        self.target_len = target_len
+        self.seq_len=config.ws
+        self.target_len = config.target_len
 
-        d_model=256
+        d_model=config.d_model
+        d_ff = config.d_ff if hasattr(config, "d_ff") else 2*d_model
         n_heads=8
         dropout=0.1
-        n_layers=4
+        n_layers= config.n_layers if hasattr(config, "n_layers") else 2
 
-        self.enc_embedding = DataEmbeddingInverted(c_in=seq_len, d_model=d_model, dropout=dropout)
+        self.enc_embedding = DataEmbeddingInverted(c_in=self.seq_len, d_model=d_model, dropout=dropout)
 
         self.encoder = Encoder(
             attn_layers=[ EncoderLayer(
                 AttentionLayer(
                     FullAttention(attention_dropout=dropout), d_model=d_model, n_heads=n_heads
                 ),
-                d_model=d_model, d_ff=2*d_model, dropout=dropout, activation="relu"
+                d_model=d_model, d_ff=d_ff, dropout=dropout, activation="relu"
             ) for l in range(n_layers) ], norm_layer=nn.LayerNorm(d_model)
         )
 
-        self.projector = nn.Linear(d_model, target_len)
+        self.projector = nn.Linear(d_model, self.target_len)
 
     def forward(self, x):
 
@@ -139,7 +140,7 @@ class iTransformer(nn.Module):
 class iTransformerLit(L.LightningModule):
     def __init__(self, config):
         super().__init__()
-        self.model = iTransformer(config.ws, config.target_len)
+        self.model = iTransformer(config)
         self.lr = config.lr
         self.criterion = nn.MSELoss()
 

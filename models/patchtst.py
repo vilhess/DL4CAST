@@ -511,9 +511,9 @@ class Model(nn.Module):
         n_heads = configs.n_heads
         d_model = configs.d_model
         d_ff = configs.d_ff
-        dropout = 0.2
-        fc_dropout = 0.2
-        head_dropout = 0.
+        dropout = configs.dropout
+        fc_dropout = configs.fc_dropout
+        head_dropout = configs.head_dropout
         
         individual = 1
     
@@ -525,8 +525,8 @@ class Model(nn.Module):
         affine = 1
         subtract_last = 0
         
-        decomposition = 1
-        kernel_size = configs.kernel_size
+        decomposition = 0
+        kernel_size = 25
         
         
         # model
