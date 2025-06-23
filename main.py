@@ -72,7 +72,7 @@ def main(cfg: DictConfig):
     if config_model.training:
 
         if "lr" not in config_model_params:
-            config_model_params["lr"] = 1e-3  
+            config_model_params["lr"] = 1e-4  
             tuner = Tuner(trainer)
             lr_finder = tuner.lr_find(
                 model=LitModel, 
