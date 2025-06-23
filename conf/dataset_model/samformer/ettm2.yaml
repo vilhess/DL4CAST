@@ -1,5 +1,4 @@
 bs: 256
 ws: 512
-lr: 1e-4
 epochs: 50
 patience: 10

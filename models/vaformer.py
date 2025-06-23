@@ -286,19 +286,21 @@ class VAformerLit(L.LightningModule):
         super().__init__()
         self.model = VAformer(in_dim=config.in_dim,
                               seq_len=config.ws,
-                              patch_len=16,
+                              patch_len=config.patch_len,
                               target_len=config.target_len,
-                              d_model=256,
-                              n_heads=8,
-                              n_layers_encoder=2,
-                              n_prelayers_decoder=2,
-                              n_layers_decoder=2,
+                              d_model=config.d_model,
+                              n_heads=config.n_heads,
+                              n_layers_encoder=config.n_layers_encoder,
+                              n_prelayers_decoder=config.n_prelayers_decoder,
+                              n_layers_decoder=config.n_layers_decoder,
                               revin=config.revin,
-                              dropout=0.1)
-        self.lr = config.lr
+                              dropout=config.dropout)
+        
         self.criterion = nn.MSELoss()
         self.l2loss = StreamMSELoss()
         self.l1loss = StreamMAELoss()
+
+        self.save_hyperparameters(config)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -333,5 +335,5 @@ class VAformerLit(L.LightningModule):
         self.l1loss.reset()
 
     def configure_optimizers(self):
-        optimizer = optim.Adam(self.parameters(), lr=self.lr, weight_decay=1e-5)
+        optimizer = optim.Adam(self.parameters(), lr=self.hparams.lr, weight_decay=1e-5)
         return optimizer

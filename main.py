@@ -1,8 +1,9 @@
 import torch
-from torch.utils.data import DataLoader
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.callbacks import EarlyStopping
+from lightning.pytorch.tuner import Tuner
+from lightning.pytorch import seed_everything
 import hydra
 from omegaconf import DictConfig, OmegaConf
 import wandb
@@ -16,7 +17,7 @@ from utils import save_results, load_model
 @hydra.main(version_base=None, config_path=f"conf", config_name="config")
 def main(cfg: DictConfig):
 
-    torch.manual_seed(0)
+    seed_everything(0)
 
     print(f"---------")
     print("Config:")
@@ -69,6 +70,17 @@ def main(cfg: DictConfig):
                         callbacks=[early_stop_callback, checkpoint_callback], logger=wandb_logger)
     
     if config_model.training:
+
+        if "lr" not in config_model_params:
+            tuner = Tuner(trainer)
+            lr_finder = tuner.lr_find(
+                model=LitModel, 
+                train_dataloaders=trainloader
+            )
+            new_lr = lr_finder.suggestion()
+            config_model_params["lr"] = new_lr
+            print(f"Suggested learning rate: {new_lr}")
+
         trainer.fit(model=LitModel, train_dataloaders=trainloader, val_dataloaders=valloader)
         best_model_path = checkpoint_callback.best_model_path
         best_model = model.load_from_checkpoint(best_model_path, config=config_model_params)
