@@ -24,10 +24,11 @@ class MomentLit(L.LightningModule):
 
         self.len_loader = config.len_loader
         self.epochs = config.epochs
-        self.lr = config.lr
 
         self.l2loss = StreamMSELoss()
         self.l1loss = StreamMAELoss()
+
+        self.save_hyperparameters(config)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -70,6 +71,6 @@ class MomentLit(L.LightningModule):
         self.l1loss.reset()
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, pct_start=0.3, max_lr=self.lr, total_steps=self.len_loader*self.epochs)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, pct_start=0.3, max_lr=self.hparams.lr, total_steps=self.len_loader*self.epochs)
         return {"optimizer": optimizer, "lr_scheduler": scheduler}

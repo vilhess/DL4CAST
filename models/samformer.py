@@ -191,12 +191,12 @@ class SAMformerLit(L.LightningModule):
     def __init__(self, config):
         super().__init__()
         self.model = SAMformer(config.in_dim, config.ws, 64, config.target_len)
-        self.lr = config.lr
         self.criterion = nn.MSELoss()
         self.l2loss = StreamMSELoss()
         self.l1loss = StreamMAELoss()
 
         self.automatic_optimization = False
+        self.save_hyperparameters(config)
 
     def training_step(self, batch, batch_idx):
         optim = self.optimizers()
@@ -242,5 +242,5 @@ class SAMformerLit(L.LightningModule):
         self.l1loss.reset()
 
     def configure_optimizers(self):
-        optimizer = SAM(self.parameters(), torch.optim.Adam, lr=self.lr, weight_decay=1e-5, rho=0.5)
+        optimizer = SAM(self.parameters(), torch.optim.Adam, lr=self.hparams.lr, weight_decay=1e-5, rho=0.5)
         return optimizer

@@ -378,11 +378,12 @@ class TimeMixerLit(L.LightningModule):
                                d_model=16,
                                d_ff=32,
                                dropout=0.1)
-        self.lr = config.lr
         self.criterion = nn.MSELoss()
 
         self.l2loss = StreamMSELoss()
         self.l1loss = StreamMAELoss()
+
+        self.save_hyperparameters(config)
 
     def training_step(self, batch, batch_idx):
         x, x_mark, y = batch
@@ -416,5 +417,5 @@ class TimeMixerLit(L.LightningModule):
         self.l1loss.reset()
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
         return optimizer

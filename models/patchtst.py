@@ -578,7 +578,6 @@ class PatchTSTLit(L.LightningModule):
     def __init__(self, config):
         super().__init__()
         self.model = Model(config)
-        self.lr = config.lr
         self.pct_start = config.pct_start
         self.epoch = config.epochs
         self.len_loader = config.len_loader
@@ -586,6 +585,8 @@ class PatchTSTLit(L.LightningModule):
 
         self.l2loss = StreamMSELoss()
         self.l1loss = StreamMAELoss()
+
+        self.save_hyperparameters(config)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -619,6 +620,6 @@ class PatchTSTLit(L.LightningModule):
         self.l1loss.reset()
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, pct_start=self.pct_start, epochs=self.epoch, max_lr=self.lr, steps_per_epoch=self.len_loader)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, pct_start=self.pct_start, epochs=self.epoch, max_lr=self.hparams.lr, steps_per_epoch=self.len_loader)
         return {"optimizer": optimizer, "lr_scheduler": scheduler}

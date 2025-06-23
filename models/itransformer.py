@@ -141,11 +141,12 @@ class iTransformerLit(L.LightningModule):
     def __init__(self, config):
         super().__init__()
         self.model = iTransformer(config)
-        self.lr = config.lr
         self.criterion = nn.MSELoss()
 
         self.l2loss = StreamMSELoss()
         self.l1loss = StreamMAELoss()
+
+        self.save_hyperparameters(config)
 
     def training_step(self, batch, batch_idx):
         x, y = batch
@@ -179,5 +180,5 @@ class iTransformerLit(L.LightningModule):
         self.l1loss.reset()
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+        optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
         return optimizer
