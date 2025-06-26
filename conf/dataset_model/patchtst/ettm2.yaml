@@ -3,13 +3,13 @@ ws: 336
 epochs: 50
 patience: 10
 
+lr: 1e-4
 e_layers: 3
 n_heads: 16
 d_model: 128
 d_ff: 256
 patch_len: 16
 stride: 8
-pct_start: 0.4
 revin: 1
 dropout: 0.2
 fc_dropout: 0.2

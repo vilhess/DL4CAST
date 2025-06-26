@@ -7,6 +7,33 @@ import numpy as np
 import lightning as L
 from models.metric import StreamMAELoss, StreamMSELoss
 
+def adjust_learning_rate(optimizer, epoch, learning_rate, lr_adj_type='type1'):
+    # lr = args.learning_rate * (0.2 ** (epoch // 2))
+    if lr_adj_type == 'type1':
+        lr_adjust = {epoch: learning_rate * (0.5 ** ((epoch - 1) // 1))}
+    elif lr_adj_type == 'type2':
+        lr_adjust = {
+            2: 5e-5, 4: 1e-5, 6: 5e-6, 8: 1e-6,
+            10: 5e-7, 15: 1e-7, 20: 5e-8
+        }
+    elif lr_adj_type == 'type3':
+        lr_adjust = {epoch: learning_rate if epoch < 3 else learning_rate * (0.9 ** ((epoch - 3) // 1))}
+    elif lr_adj_type == 'constant':
+        lr_adjust = {epoch: learning_rate}
+    elif lr_adj_type == '3':
+        lr_adjust = {epoch: learning_rate if epoch < 10 else learning_rate*0.1}
+    elif lr_adj_type == '4':
+        lr_adjust = {epoch: learning_rate if epoch < 15 else learning_rate*0.1}
+    elif lr_adj_type == '5':
+        lr_adjust = {epoch: learning_rate if epoch < 25 else learning_rate*0.1}
+    elif lr_adj_type == '6':
+        lr_adjust = {epoch: learning_rate if epoch < 5 else learning_rate*0.1}
+    
+    if epoch in lr_adjust.keys():
+        lr = lr_adjust[epoch]
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
+
 class RevIN(nn.Module):
     def __init__(self, num_features: int, eps=1e-5, affine=True, subtract_last=False, non_norm=False):
         """
@@ -578,7 +605,6 @@ class PatchTSTLit(L.LightningModule):
     def __init__(self, config):
         super().__init__()
         self.model = Model(config)
-        self.pct_start = config.pct_start
         self.epoch = config.epochs
         self.len_loader = config.len_loader
         self.criterion = nn.MSELoss()
@@ -594,6 +620,11 @@ class PatchTSTLit(L.LightningModule):
         loss = self.criterion(prediction, y)
         self.log("train_loss", loss)
         return loss
+
+    def on_train_epoch_end(self):
+        epoch = self.current_epoch + 1
+        adjust_learning_rate(self.optimizers(), epoch, self.hparams.lr)
+
     
     def validation_step(self, batch, batch_idx):
         x, y = batch
@@ -621,5 +652,4 @@ class PatchTSTLit(L.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
-        scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, pct_start=self.pct_start, epochs=self.epoch, max_lr=self.hparams.lr, steps_per_epoch=self.len_loader)
-        return {"optimizer": optimizer, "lr_scheduler": scheduler}
+        return optimizer

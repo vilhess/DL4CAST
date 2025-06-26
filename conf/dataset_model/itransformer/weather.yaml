@@ -3,6 +3,7 @@ ws: 96
 epochs: 50
 patience: 10
 
+lr: 1e-4
 n_layers: 3
 d_model: 512
 d_ff: 512

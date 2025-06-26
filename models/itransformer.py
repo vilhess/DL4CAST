@@ -5,6 +5,20 @@ from math import sqrt
 import lightning as L 
 from models.metric import StreamMAELoss, StreamMSELoss
 
+def adjust_learning_rate(optimizer, epoch, learning_rate, lr_adj_type='type1'):
+    # lr = args.learning_rate * (0.2 ** (epoch // 2))
+    if lr_adj_type == 'type1':
+        lr_adjust = {epoch: learning_rate * (0.5 ** ((epoch - 1) // 1))}
+    elif lr_adj_type == 'type2':
+        lr_adjust = {
+            2: 5e-5, 4: 1e-5, 6: 5e-6, 8: 1e-6,
+            10: 5e-7, 15: 1e-7, 20: 5e-8
+        }
+    if epoch in lr_adjust.keys():
+        lr = lr_adjust[epoch]
+        for param_group in optimizer.param_groups:
+            param_group['lr'] = lr
+
 class DataEmbeddingInverted(nn.Module):
     def __init__(self, c_in, d_model, dropout=0.1):
         super(DataEmbeddingInverted, self).__init__()
@@ -151,9 +165,13 @@ class iTransformerLit(L.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch
         prediction = self.model(x)
-        loss = self.criterion(prediction, y)
+        loss = self.criterion(prediction, y)        
         self.log("train_loss", loss)
         return loss
+    
+    def on_train_epoch_end(self):
+        epoch = self.current_epoch + 1
+        adjust_learning_rate(self.optimizers(), epoch, self.hparams.lr)
     
     def validation_step(self, batch, batch_idx):
         x, y = batch
