@@ -2,3 +2,6 @@ bs: 256
 ws: 96
 epochs: 50
 patience: 10
+
+lr: 1e-3
+pct_start: 0.2

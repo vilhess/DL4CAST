@@ -418,4 +418,5 @@ class TimeMixerLit(L.LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.lr)
-        return optimizer
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, pct_start=self.hparams.pct_start, epochs=self.hparams.epochs, max_lr=self.hparams.lr, steps_per_epoch=self.hparams.len_loader)
+        return {"optimizer": optimizer, "lr_scheduler": scheduler}
