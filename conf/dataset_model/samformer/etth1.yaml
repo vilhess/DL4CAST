@@ -2,3 +2,5 @@ bs: 256
 ws: 512
 epochs: 50
 patience: 10
+
+lr: 1e-3
