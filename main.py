@@ -60,7 +60,7 @@ def main(cfg: DictConfig):
         monitor="val_l2loss",
         mode="min",
         save_top_k=1,
-        save_last=False,
+        save_last=True,
         filename="best-checkpoint"
     )
 
@@ -83,8 +83,12 @@ def main(cfg: DictConfig):
             print(f"Suggested learning rate: {new_lr}")
 
         trainer.fit(model=LitModel, train_dataloaders=trainloader, val_dataloaders=valloader)
+
         best_model_path = checkpoint_callback.best_model_path
-        best_model = model.load_from_checkpoint(best_model_path, config=config_model_params)
+        if best_model_path != "":
+            best_model = model.load_from_checkpoint(best_model_path, config=config_model_params)
+        else: 
+            best_model = LitModel
         
     else:
         best_model = LitModel

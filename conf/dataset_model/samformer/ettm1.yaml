@@ -1,6 +1,6 @@
 bs: 256
 ws: 512
-epochs: 50
+epochs: 500
 patience: 10
 
 lr: 1e-3
