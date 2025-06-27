@@ -19,6 +19,8 @@ def load_model(model_name):
         from models.toto import TotoLit as model
     elif model_name=="patchtst":
         from models.patchtst import PatchTSTLit as model
+    elif model_name=="jepatchtst":
+        from models.jepatchtst import JEPAtchTSTLit as model
     return model
 
 def load_results(filename="mse.json"):

@@ -1,0 +1,19 @@
+bs: 256
+ws: 336
+epochs: 50
+patience: 10
+
+lr: 1e-4
+patch_len: 16
+d_model: 256
+d_ff: 512
+n_heads: 16
+n_layers: 4
+
+revin: True
+freeze_encoder: True
+head_dp: 0.1
+
+scratch: False
+load_hub: False
+save_path: models/checkpoints/jepatchtst.ckpt

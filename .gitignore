@@ -3,3 +3,4 @@
 *wandb/
 *.csv
 DL4CAST/
+*.ckpt
