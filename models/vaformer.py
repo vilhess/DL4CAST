@@ -295,6 +295,7 @@ class VAformerLit(L.LightningModule):
                               n_layers_decoder=config.n_layers_decoder,
                               revin=config.revin,
                               dropout=config.dropout)
+        self.init_weights()
         
         self.criterion = nn.MSELoss()
         self.l2loss = StreamMSELoss()
@@ -335,5 +336,16 @@ class VAformerLit(L.LightningModule):
         self.l1loss.reset()
 
     def configure_optimizers(self):
-        optimizer = optim.Adam(self.parameters(), lr=self.hparams.lr, weight_decay=1e-5)
-        return optimizer
+        optimizer = optim.AdamW(self.parameters(), lr=self.hparams.lr, weight_decay=0.05)
+        scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, pct_start=0.2, epochs=self.hparams.epochs, max_lr=self.hparams.lr, steps_per_epoch=self.hparams.len_loader)
+        return {"optimizer": optimizer, "lr_scheduler": scheduler}
+    
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                torch.nn.init.trunc_normal_(m.weight, std=0.02)
+                if m.bias is not None:
+                    torch.nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.LayerNorm):
+                m.bias.data.fill_(0.0)
+                m.weight.data.fill_(1.0)
