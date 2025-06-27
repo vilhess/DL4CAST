@@ -1,7 +1,7 @@
 bs: 32
 ws: 512
-epochs: 10
-patience: 2
+epochs: 20
+patience: 5
 
 freeze_encoder: true
 size: small
