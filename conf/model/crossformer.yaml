@@ -1,0 +1,4 @@
+name: crossformer
+use_time_features: False
+
+training: True
