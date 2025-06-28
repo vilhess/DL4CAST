@@ -1,0 +1,9 @@
+bs: 256
+ws: 60
+epochs: 50
+patience: 10
+
+seg_len: 6
+lr: 5e-4
+dropout: 0.6
+e_layers: 2

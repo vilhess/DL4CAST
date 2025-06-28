@@ -1,0 +1,7 @@
+bs: 256
+ws: 168
+epochs: 50
+patience: 10
+
+seg_len: 6
+lr: 1e-4
