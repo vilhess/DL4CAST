@@ -4,3 +4,4 @@
 *.csv
 DL4CAST/
 *.ckpt
+experiments.ipynb
