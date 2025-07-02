@@ -284,6 +284,11 @@ class VAformer(nn.Module): # encoder tokens=variables decoder tokens=signal patc
 class VAformerLit(L.LightningModule):
     def __init__(self, config):
         super().__init__()
+
+        if config.target_len>=200:
+            config.n_prelayers_decoder=4
+            config.n_layers_decoder=2
+
         self.model = VAformer(in_dim=config.in_dim,
                               seq_len=config.ws,
                               patch_len=config.patch_len,
