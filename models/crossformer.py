@@ -1,5 +1,6 @@
 import torch 
 import torch.nn as nn
+import torch.nn.functional as F
 from einops import rearrange, repeat
 import math
 import lightning as L 
@@ -283,8 +284,8 @@ class CrossFormer(nn.Module):
         d_model=256
         d_ff = 512
         n_heads=4
-        e_layers=config.e_layers or 3
-        dropout= config.dropout or 0.2
+        e_layers= getattr(config, "e_layers", 3)
+        dropout= getattr(config, "dropout", 0.2)
 
         self.pad_in_len = math.ceil(1. * self.in_len / seg_len) * seg_len # the size for working with the patch size (seg_len)
         self.pad_out_len = math.ceil(1. * self.out_len / seg_len) * seg_len
