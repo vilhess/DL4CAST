@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import math 
 from einops import rearrange
 import lightning as L
 import torch.optim as optim
@@ -57,17 +56,6 @@ class RevIN(nn.Module):
         x = x + self.mean
         return x
     
-def PositionalEncoding(q_len, d_model, normalize=True, learn_pe=False):
-    pe = torch.zeros(q_len, d_model)
-    position = torch.arange(0, q_len).unsqueeze(1)
-    div_term = torch.exp(torch.arange(0, d_model, 2) * -(math.log(10000.0) / d_model))
-    pe[:, 0::2] = torch.sin(position * div_term)
-    pe[:, 1::2] = torch.cos(position * div_term)
-    if normalize:
-        pe = pe - pe.mean()
-        pe = pe / (pe.std() * 10)
-    return nn.Parameter(pe, requires_grad=learn_pe)
-    
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, n_heads, dropout=0.1, rope_kind=None):
         super().__init__()
@@ -97,8 +85,8 @@ class MultiHeadAttention(nn.Module):
             v = q
 
         q = self.WQ(q).reshape(bs, -1, self.n_heads, self.head_dim).transpose(1, 2)
-        k = self.WQ(k).reshape(bs, -1, self.n_heads, self.head_dim).transpose(1, 2)
-        v = self.WQ(v).reshape(bs, -1, self.n_heads, self.head_dim).transpose(1, 2)
+        k = self.WK(k).reshape(bs, -1, self.n_heads, self.head_dim).transpose(1, 2)
+        v = self.WV(v).reshape(bs, -1, self.n_heads, self.head_dim).transpose(1, 2)
 
         if self.rope_kind=="q":
             q = self.rope.rotate_queries_or_keys(q)
@@ -230,7 +218,6 @@ class VAformer(nn.Module): # encoder tokens=variables decoder tokens=signal patc
         self.patch_num = seq_len//patch_len
         self.in_dim = in_dim
         self.proj2 = nn.Linear(patch_len, d_model)
-        self.W_pos = PositionalEncoding(q_len=seq_len//patch_len, d_model=d_model)
         self.decoder = TransformerDecoder(d_model=d_model, n_heads=n_heads, n_pre_layers=n_prelayers_decoder, n_layers=n_layers_decoder, dropout=dropout)
 
         self.forecaster = nn.ModuleList(
@@ -258,7 +245,6 @@ class VAformer(nn.Module): # encoder tokens=variables decoder tokens=signal patc
         x_dec = rearrange(x_dec, "b (pn pl) -> b pn pl", pl=self.patch_len)
 
         x_dec = self.proj2(x_dec)
-        #x_dec = self.dp(x_dec + self.W_pos)
         x_dec = self.dp(x_dec) ##
 
         x_enc = x_enc.repeat_interleave(repeats=in_dim, dim=0)
@@ -284,10 +270,6 @@ class VAformer(nn.Module): # encoder tokens=variables decoder tokens=signal patc
 class VAformerLit(L.LightningModule):
     def __init__(self, config):
         super().__init__()
-
-        if config.target_len>=200:
-            config.n_prelayers_decoder=4
-            config.n_layers_decoder=2
 
         self.model = VAformer(in_dim=config.in_dim,
                               seq_len=config.ws,
